@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { serializeUser, userContentInclude } from "@/lib/auth";
+import { createSession, serializeUser, userContentInclude } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { createSessionToken, SESSION_COOKIE_NAME } from "@/lib/session";
 
 export async function POST(request: Request) {
   try {
@@ -36,17 +35,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email atau password salah." }, { status: 401 });
     }
 
-    const response = NextResponse.json({ user: serializeUser(user) });
-    response.cookies.set(SESSION_COOKIE_NAME, createSessionToken(user.id), {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
-    return response;
-  } catch {
-    console.error("POST /api/auth/login error");
-    return NextResponse.json({ error: "Gagal memproses login." }, { status: 500 });
+    await createSession(user.id);
+    return NextResponse.json({ user: serializeUser(user) });
+  } catch (error) {
+    console.error("POST /api/auth/login error", error);
+    return NextResponse.json(
+      { error: "Login gagal. Periksa koneksi database lalu coba lagi." },
+      { status: 500 }
+    );
   }
 }
