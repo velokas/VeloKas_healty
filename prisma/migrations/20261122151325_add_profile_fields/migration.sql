@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE `Photo` ADD COLUMN `likes` INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `avatar` LONGTEXT NULL,
+    ADD COLUMN `club` VARCHAR(191) NOT NULL DEFAULT 'Downtown Club';
