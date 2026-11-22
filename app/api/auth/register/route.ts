@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { createSession, getCurrentUser, hashPassword } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { ensureSchema, prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
+  await ensureSchema();
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";

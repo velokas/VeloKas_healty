@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { ensureSchema, prisma } from "@/lib/prisma";
 import { getSessionUserId } from "@/lib/session";
 
 export async function GET(req: Request) {
   try {
+    await ensureSchema();
     const { searchParams } = new URL(req.url);
     const category = (searchParams.get("category") ?? "").trim();
     const q = (searchParams.get("q") ?? "").trim();
@@ -42,6 +43,7 @@ export async function POST(req: Request) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    await ensureSchema();
 
     const body = await req.json().catch(() => ({})) as {
       category?: string;

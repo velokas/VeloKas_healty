@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { ensureSchema, prisma } from "@/lib/prisma";
 import { getSessionUserId } from "@/lib/session";
 
 const profileSelect = {
@@ -15,6 +15,7 @@ export async function GET() {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    await ensureSchema();
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -38,6 +39,7 @@ export async function PATCH(req: Request) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    await ensureSchema();
 
     const body = await req.json().catch(() => ({})) as {
       name?: string;

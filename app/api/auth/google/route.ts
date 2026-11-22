@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSession, getCurrentUser, randomPasswordHash } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { ensureSchema, prisma } from "@/lib/prisma";
 
 type GoogleProfile = {
   sub?: string;
@@ -11,6 +11,7 @@ type GoogleProfile = {
 };
 
 export async function POST(request: Request) {
+  await ensureSchema();
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
   const accessToken = typeof body.accessToken === "string" ? body.accessToken : "";
   const club = typeof body.club === "string" && body.club.trim() ? body.club.trim() : "Downtown Club";

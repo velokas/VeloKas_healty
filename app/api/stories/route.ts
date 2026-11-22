@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { ensureSchema, prisma } from "@/lib/prisma";
 import { getSessionUserId } from "@/lib/session";
 
 export async function GET() {
@@ -8,6 +8,7 @@ export async function GET() {
     if (!userId) {
       return NextResponse.json({ stories: [] });
     }
+    await ensureSchema();
 
     const stories = await prisma.story.findMany({
       where: { userId },
@@ -27,6 +28,7 @@ export async function POST(req: Request) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    await ensureSchema();
 
     const body = await req.json().catch(() => ({})) as { mediaUrl?: string; caption?: string; image?: string };
     const mediaUrl = (body.mediaUrl ?? body.image ?? "").trim();

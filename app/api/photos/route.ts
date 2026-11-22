@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { ensureSchema, prisma } from "@/lib/prisma";
 import { getSessionUserId } from "@/lib/session";
 
 export async function GET() {
@@ -8,6 +8,7 @@ export async function GET() {
     if (!userId) {
       return NextResponse.json({ photos: [] });
     }
+    await ensureSchema();
 
     const photos = await prisma.photo.findMany({
       where: { userId },
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    await ensureSchema();
 
     const body = await req.json().catch(() => ({})) as { caption?: string; images?: unknown };
     const images = Array.isArray(body.images)

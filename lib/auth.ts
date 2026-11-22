@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
-import { prisma } from "./prisma";
+import { ensureSchema, prisma } from "./prisma";
 import { createSessionToken, getSessionUserId, SESSION_COOKIE_NAME } from "./session";
 
 export type PhotoPost = {
@@ -108,6 +108,7 @@ export async function getCurrentUserId() {
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const userId = await getCurrentUserId();
   if (!userId) return null;
+  await ensureSchema();
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: userContentInclude,
